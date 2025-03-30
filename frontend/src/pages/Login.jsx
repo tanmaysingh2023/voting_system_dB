@@ -8,7 +8,7 @@ const Login = () => {
         </div>
         <div>
             <h1>For Admins</h1>
-
+            
             <p></p>
         </div>
     </div>
