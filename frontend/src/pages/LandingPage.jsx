@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom';
 
 const fadeIn = {
     hidden: { opacity: 0, y: 30 },
@@ -7,6 +8,12 @@ const fadeIn = {
 };
 
 const LandingPage = () => {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate('/auth');
+    };
+
     return (
         <div className="bg-[#141827] text-white min-h-screen flex flex-col items-center px-6 gap-10">
             {/* Navbar */}
@@ -55,7 +62,8 @@ const LandingPage = () => {
                         initial="hidden"
                         animate="visible"
                         transition={{ delay: 0.4 }}
-                        className="mt-6 px-6 py-3 bg-blue-600 rounded-lg text-lg font-semibold hover:bg-blue-500 transition"
+                        className="mt-6 px-6 py-3 bg-blue-600 rounded-lg text-lg font-semibold hover:bg-blue-500 transition hover:cursor-pointer"
+                        onClick={handleClick}
                     >
                         Get Started
                     </motion.button>
