@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 
-const AddPartyForm = ({ onAdd, onCancel }) => {
+const AddPartyForm = ({ onAdd, onCancel, electionID }) => {
   const [formData, setFormData] = useState({
     name: '',
     agenda: '',
-    head: '',
-    members: ['', '', '', ''] // 4 members including head
+    headname: '',
+    members: ['', '', ''], // 4 members including head
+    electionID: electionID,
   });
   
   const [errors, setErrors] = useState({});
@@ -42,8 +43,8 @@ const AddPartyForm = ({ onAdd, onCancel }) => {
       newErrors.agenda = 'Agenda is required';
     }
     
-    if (!formData.head.trim()) {
-      newErrors.head = 'Party head name is required';
+    if (!formData.headname.trim()) {
+      newErrors.headname = 'Party head name is required';
     }
     
     // Validate all members
@@ -63,9 +64,9 @@ const AddPartyForm = ({ onAdd, onCancel }) => {
     if (validateForm()) {
       // Copy the head's name to the first member if they're the same person
       const finalData = { ...formData };
-      if (finalData.members[0] === '') {
-        finalData.members[0] = finalData.head;
-      }
+      // if (finalData.members[0] === '') {
+      //   finalData.members[0] = finalData.headname;
+      // }
       
       onAdd(finalData);
     }
@@ -117,18 +118,18 @@ const AddPartyForm = ({ onAdd, onCancel }) => {
         </div>
         
         <div>
-          <label htmlFor="head" className="block text-gray-400 text-sm mb-1">
+          <label htmlFor="headname" className="block text-gray-400 text-sm mb-1">
             Party Head Name*
           </label>
           <input
-            id="head"
-            name="head"
+            id="headname"
+            name="headname"
             type="text"
-            value={formData.head}
+            value={formData.headname}
             onChange={handleChange}
-            className={`w-full bg-gray-700 text-white p-2 rounded-md border ${errors.head ? 'border-red-500' : 'border-gray-600'} focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
+            className={`w-full bg-gray-700 text-white p-2 rounded-md border ${errors.headname ? 'border-red-500' : 'border-gray-600'} focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
           />
-          {errors.head && <p className="mt-1 text-sm text-red-500">{errors.head}</p>}
+          {errors.headname && <p className="mt-1 text-sm text-red-500">{errors.headname}</p>}
         </div>
         
         <div>
@@ -139,14 +140,13 @@ const AddPartyForm = ({ onAdd, onCancel }) => {
             {formData.members.map((member, index) => (
               <div key={index}>
                 <label htmlFor={`member${index}`} className="block text-gray-400 text-xs mb-1">
-                  {index === 0 ? "Member 1 (same as head)" : `Member ${index + 1}`}*
+                  {`Member ${index + 1}`}*
                 </label>
                 <input
                   id={`member${index}`}
                   type="text"
                   value={member}
                   onChange={(e) => handleMemberChange(index, e.target.value)}
-                  placeholder={index === 0 ? formData.head : ""}
                   className={`w-full bg-gray-700 text-white p-2 rounded-md border ${errors[`member${index}`] ? 'border-red-500' : 'border-gray-600'} focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200`}
                 />
                 {errors[`member${index}`] && <p className="mt-1 text-sm text-red-500">{errors[`member${index}`]}</p>}

@@ -2,50 +2,31 @@ import React from 'react';
 import AdminSidebar from './AdminSidebar';
 import ElectionManagement from './ElectionManagement';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const AdminDashboard = () => {
+  const [elections, setElections] = useState([]);
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
   // Mock admin data - in a real app, this would come from an API or context
   const admin = {
-    username: "AdminUser",
-    email: "admin@example.com",
+    username: "Ayush Dhimmar",
+    email: "ayushdhimmar@gmail.com",
     adminId: "ADM987654321"
   };
 
   // Mock elections data - in a real app, this would come from an API
-  const elections = [
-    {
-      id: 1,
-      name: "Student Council Elections 2025",
-      description: "Vote for your student representatives",
-      active: true,
-      startTime: "2025-04-10T08:00:00",
-      endTime: "2025-04-15T17:00:00"
-    },
-    {
-      id: 2,
-      name: "Department Head Election",
-      description: "Select the new head of Computer Science department",
-      active: true,
-      startTime: "2025-04-12T09:00:00",
-      endTime: "2025-04-14T16:00:00"
-    },
-    {
-      id: 3,
-      name: "Budget Allocation Referendum",
-      description: "Vote on the proposed budget for next semester",
-      active: false,
-      startTime: "2025-05-01T08:00:00",
-      endTime: "2025-05-05T17:00:00"
-    },
-    {
-      id: 4,
-      name: "Campus Development Initiative",
-      description: "Approve or reject new campus facilities",
-      active: false,
-      startTime: "2025-05-10T08:00:00",
-      endTime: "2025-05-15T17:00:00"
-    }
-  ];
+  useEffect(() => {
+    getData();
+    // console.log(elections);
+  }, [])
+  async function getData() {
+    let allelections = await fetch(`${SERVER_URL}/getelections`);
+    // console.log(allelections)
+    allelections = await allelections.json();
+    setElections(allelections.data);
+    // console.log(allelections)
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -71,10 +52,10 @@ const AdminDashboard = () => {
         <div className="w-full md:w-1/4">
           <AdminSidebar admin={admin} />
         </div>
-        
+
         {/* Right Content Area - takes about 75% width */}
         <div className="w-full md:w-3/4 bg-gray-900">
-          <ElectionManagement elections={elections} />
+          {<ElectionManagement elections={elections} setElections={setElections}/>}
         </div>
       </main>
     </div>

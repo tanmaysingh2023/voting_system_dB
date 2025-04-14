@@ -2,43 +2,46 @@
 import React from 'react';
 import UserSidebar from './UserSidebar';
 import ElectionList from './ElectionList';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const Dashboard = () => {
+    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+    const navigate = useNavigate();
     // Mock user data - in a real app, this would come from an API or context
-    const user = {
-        username: "JohnDoe",
-        email: "john.doe@example.com",
-        voterId: "VOT123456789"
-    };
+    const storedUser = localStorage.getItem("voterUser");
+    const user = storedUser ? JSON.parse(storedUser) : null;
+
+    useEffect(() => {
+        if (!user) {
+            navigate("/user-login"); // Redirect to login if no user is found
+        }
+    }, [user, navigate]);
 
     // Mock elections data - in a real app, this would come from an API
-    const elections = [
-        {
-            id: 1,
-            name: "Student Council Elections 2025",
-            description: "Vote for your student representatives",
-            active: true
-        },
-        {
-            id: 2,
-            name: "Department Head Election",
-            description: "Select the new head of Computer Science department",
-            active: true
-        },
-        {
-            id: 3,
-            name: "Budget Allocation Referendum",
-            description: "Vote on the proposed budget for next semester",
-            active: false
-        },
-        {
-            id: 4,
-            name: "Campus Development Initiative",
-            description: "Approve or reject new campus facilities",
-            active: false
+    const [elections, setElections] = useState([]);
+
+    useEffect(() => {
+        getData();
+    }, []);
+    async function getData() {
+        try {
+            const res = await fetch(`${SERVER_URL}/getelections`, {
+                method: 'GET',
+            });
+
+            const result = await res.json();
+
+            if (result.success && result.data) {
+                setElections(result.data);
+            } else {
+                console.error('Failed to fetch elections');
+            }
+        } catch (error) {
+            console.error('Error fetching elections:', error);
         }
-    ];
+    }
+
 
     return (
         <div className="flex flex-col min-h-screen bg-[#141827] relative">

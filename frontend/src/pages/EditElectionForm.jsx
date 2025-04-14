@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 
 const EditElectionForm = ({ election, onUpdate, onCancel }) => {
+  // console.log(election);
+
+  const formatDateForInput = (date) => {
+    const d = new Date(date);
+    const pad = (n) => (n < 10 ? '0' + n : n);
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };  
+
   const [formData, setFormData] = useState({
-    id: election.id,
+    _id: election._id,
     name: election.name,
     description: election.description,
-    startTime: election.startTime,
-    endTime: election.endTime,
+    startTime: formatDateForInput(election.startTime),
+    endTime: formatDateForInput(election.endTime),
     active: election.active
-  });
+  });  
+  // console.log(formData);
   
   const [errors, setErrors] = useState({});
   
