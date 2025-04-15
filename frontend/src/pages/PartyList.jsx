@@ -167,7 +167,7 @@ const PartyList = () => {
                     <button
                       onClick={() => handleVoteClick(party.id)}
                       disabled={votedParty !== null || isElectionEnded || !election.active}
-                      className={`px-4 py-2 rounded ${votedParty === party.id
+                      className={`px-4 py-2 rounded ${election.active && votedParty === party.id
                         ? 'bg-green-600 text-white cursor-default'
                         : votedParty !== null || isElectionEnded || !election.active
                           ? 'bg-gray-600 text-gray-400 cursor-not-allowed'

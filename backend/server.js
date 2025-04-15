@@ -183,7 +183,7 @@ app.get('/parties/:electionID', async (req, res) => {
     const { electionID } = req.params;
 
     try {
-        const parties = await party.find({ electionID });
+        const parties = await party.find({ electionID }).sort({votes: -1});
         res.status(200).json({ success: true, data: parties });
     } catch (error) {
         console.error('Error fetching parties for election:', error);
@@ -255,19 +255,6 @@ app.get('/vote/:voterID/:electionID', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 });
-
-app.get('/parties/:electionID', async (req, res) => {
-    const { electionID } = req.params;
-
-    try {
-        const parties = await party.find({ electionID });
-        res.status(200).json({ success: true, data: parties });
-    } catch (error) {
-        console.error('Error fetching parties:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-});
-
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

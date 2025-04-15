@@ -13,7 +13,7 @@ const Results = () => {
 
     useEffect(() => {
         getData();
-        console.log(parties);
+        // console.log(parties);
     }, []);
     async function getData() {
         try {
@@ -63,25 +63,36 @@ const Results = () => {
                         </header>
                     </div>
 
-                    {parties?.map((party, index) => (
-                        <div
-                            key={party.id}
-                            className="bg-gray-800 rounded-2xl shadow-md p-5 hover:bg-gray-700"
-                        >
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-2xl font-semibold text-white mb-2">
-                                        {party.name}
-                                    </h3>
-                                    <p className="text-gray-400 text-sm">Led by: <span className="text-gray-200 font-medium">{party.head}</span></p>
+                    <div className='font-extrabold text-2xl my-6'>
+                        Winner: {parties[0]?.name}
+                    </div>
+
+                    <div className="space-y-4">
+                        {
+                        parties?.map((party) => {
+                            return (
+                            <div
+                                key={party.id}
+                                className="bg-gray-800 rounded-lg p-5 flex justify-between items-center hover:bg-gray-700 transition-all duration-200"
+                            >
+                                <div className="flex-1">
+                                    <h3 className="text-white text-lg font-medium">{party.name}</h3>
                                 </div>
-                                <div className="text-center bg-blue-700 px-4 py-2 rounded-xl text-white text-xl font-bold shadow-inner">
-                                    {party.votes} Votes
+
+                                <div className="flex-1 text-center">
+                                    <p className="text-gray-300 text-sm underline">
+                                        {party?.headname}
+                                    </p>
+                                </div>
+
+                                <div className="flex-1 flex justify-end">
+                                    <div className="text-center bg-blue-700 px-4 py-2 rounded-xl text-white text-xl font-bold shadow-inner">
+                                        {party.votes} Votes
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-
+                        )})}
+                    </div>
                 </div>
             </div>
         </div>

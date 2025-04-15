@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +14,16 @@ const UserLogin = () => {
         password: "",
     });
 
+    const storedUser = localStorage.getItem("voterUser") ? localStorage.getItem("voterUser") : null;
+    const user = storedUser ? JSON.parse(storedUser) : null;
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [])
+
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -25,7 +35,7 @@ const UserLogin = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             });
-    
+
             const data = await res.json();
             if (data.success) {
                 localStorage.setItem("voterUser", JSON.stringify(data.user));
@@ -38,7 +48,7 @@ const UserLogin = () => {
             alert("Something went wrong.");
         }
     };
-    
+
 
     return (
         <div className="bg-[#141827] text-white min-h-screen flex flex-col items-center px-6 pt-20">

@@ -9,19 +9,22 @@ const Dashboard = () => {
     const SERVER_URL = import.meta.env.VITE_SERVER_URL;
     const navigate = useNavigate();
     // Mock user data - in a real app, this would come from an API or context
-    const storedUser = localStorage.getItem("voterUser");
+    const storedUser = localStorage.getItem("voterUser") ? localStorage.getItem("voterUser") : null;
     const user = storedUser ? JSON.parse(storedUser) : null;
-
+    
     useEffect(() => {
-        if (!user) {
-            navigate("/user-login"); // Redirect to login if no user is found
-        }
+        // if (!user) {
+        //     navigate("/user-login"); // Redirect to login if no user is found
+        // }
     }, [user, navigate]);
 
     // Mock elections data - in a real app, this would come from an API
     const [elections, setElections] = useState([]);
 
     useEffect(() => {
+        if (!user) {
+            navigate("/user-login"); // Redirect to login if no user is found
+        }
         getData();
     }, []);
     async function getData() {
