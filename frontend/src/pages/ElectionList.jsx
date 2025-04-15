@@ -10,9 +10,9 @@ const ElectionList = ({ elections }) => {
       <div className=" flex flex-col space-y-4">
         {elections.map((election) => (
           <Link 
-            key={election.id} 
-            to={election.active ? `/election/${election.id}` : '#'}
-            className={election.active ? '' : 'pointer-events-none'}
+            key={election._id} 
+            to={`/election/${election._id}`}
+            // className={election.active ? '' : 'pointer-events-none'}
           >
             <div className="bg-gray-800 rounded-lg p-4 flex justify-between items-center hover:bg-gray-700 transition-all duration-200">
               <div>

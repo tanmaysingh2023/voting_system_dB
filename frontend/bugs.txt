@@ -1,0 +1,1 @@
+stop/start toggle does not change the UI properly.

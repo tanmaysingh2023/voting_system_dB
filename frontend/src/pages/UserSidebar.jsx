@@ -1,16 +1,40 @@
-// Updated UserSidebar.jsx with Settings Popup
 import React, { useState } from 'react';
 
 const UserSidebar = ({ user }) => {
   const [showSettings, setShowSettings] = useState(false);
-  const [username, setUsername] = useState(user.username);
+  const [fullName, setFullName] = useState(user?.fullName || '');
 
-  const handleSaveSettings = () => {
-    // In a real app, this would make an API call to update the username
-    console.log(`Saving new username: ${username}`);
-    // Close the settings panel
+  const handleSaveSettings = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/api/auth/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email, // we use this to identify the user
+          fullName: fullName,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // update localStorage to reflect new name immediately
+        localStorage.setItem("voterUser", JSON.stringify(data.user));
+        alert("Name updated successfully!");
+      } else {
+        alert(data.message || "Update failed.");
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+      alert("Something went wrong while updating.");
+    }
+
     setShowSettings(false);
   };
+
+  const initial = fullName?.charAt(0)?.toUpperCase() || "U";
 
   return (
     <div className="bg-gray-800 h-screen w-full flex flex-col justify-between p-6 relative overflow-hidden">
@@ -19,30 +43,30 @@ const UserSidebar = ({ user }) => {
         <div className="flex items-center justify-center mb-8">
           <div className="h-20 w-20 rounded-full bg-gray-700 flex items-center justify-center">
             <span className="text-2xl text-white font-bold">
-              {user.username.charAt(0).toUpperCase()}
+              {initial}
             </span>
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <p className="text-gray-400 text-sm">Username</p>
-            <p className="text-white font-medium">{user.username}</p>
+            <p className="text-gray-400 text-sm">Full Name</p>
+            <p className="text-white font-medium">{user?.fullName || "Unknown User"}</p>
           </div>
-          
+
           <div>
             <p className="text-gray-400 text-sm">Email</p>
-            <p className="text-white font-medium">{user.email}</p>
+            <p className="text-white font-medium">{user?.email || "No Email"}</p>
           </div>
-          
+
           <div>
             <p className="text-gray-400 text-sm">Voter ID</p>
-            <p className="text-white font-medium">{user.voterId}</p>
+            <p className="text-white font-medium">{user?.voterId || "N/A"}</p>
           </div>
         </div>
 
         {/* Settings Button */}
-        <button 
+        <button
           onClick={() => setShowSettings(true)}
           className="w-full mt-6 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-md flex items-center gap-2 transition-all duration-200 hover:cursor-pointer"
         >
@@ -54,7 +78,13 @@ const UserSidebar = ({ user }) => {
       </div>
 
       {/* Logout Button */}
-      <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md flex items-center gap-2 transition-all duration-200 hover:cursor-pointer">
+      <button
+        onClick={() => {
+          localStorage.removeItem("voterUser");
+          window.location.href = "/user-login";
+        }}
+        className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md flex items-center gap-2 transition-all duration-200 hover:cursor-pointer"
+      >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v1a1 1 0 102 0V9z" clipRule="evenodd" />
           <path d="M4 9a1 1 0 011-1h4a1 1 0 010 2H5a1 1 0 01-1-1z" />
@@ -63,15 +93,14 @@ const UserSidebar = ({ user }) => {
       </button>
 
       {/* Settings Popup Panel */}
-      <div 
-        className={`absolute inset-0 bg-gray-700 z-10 p-6 transform transition-transform duration-300 ease-in-out ${
-          showSettings ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <div
+        className={`absolute inset-0 bg-gray-700 z-10 p-6 transform transition-transform duration-300 ease-in-out ${showSettings ? 'translate-x-0' : '-translate-x-full'
+          }`}
         style={{ width: '100%' }}
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-white">User Settings</h2>
-          <button 
+          <button
             onClick={() => setShowSettings(false)}
             className="text-gray-300 hover:text-white transition-colors duration-200 hover:cursor-pointer"
           >
@@ -80,22 +109,22 @@ const UserSidebar = ({ user }) => {
             </svg>
           </button>
         </div>
-        
+
         <div className="space-y-6">
-          {/* Username - Editable */}
+          {/* Full Name - Editable */}
           <div>
-            <label htmlFor="username" className="block text-gray-400 text-sm mb-1">
-              Username
+            <label htmlFor="fullName" className="block text-gray-400 text-sm mb-1">
+              Full Name
             </label>
             <input
-              id="username"
+              id="fullName"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="w-full bg-gray-800 text-white p-2 rounded-md border border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200"
             />
           </div>
-          
+
           {/* Email - Read only */}
           <div>
             <label htmlFor="email" className="block text-gray-400 text-sm mb-1">
@@ -109,7 +138,7 @@ const UserSidebar = ({ user }) => {
               className="w-full bg-gray-900 text-gray-400 p-2 rounded-md border border-gray-700 cursor-not-allowed"
             />
           </div>
-          
+
           {/* Voter ID - Read only */}
           <div>
             <label htmlFor="voterId" className="block text-gray-400 text-sm mb-1">
@@ -123,7 +152,7 @@ const UserSidebar = ({ user }) => {
               className="w-full bg-gray-900 text-gray-400 p-2 rounded-md border border-gray-700 cursor-not-allowed"
             />
           </div>
-          
+
           {/* Save Button */}
           <button
             onClick={handleSaveSettings}

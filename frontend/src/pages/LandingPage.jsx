@@ -11,7 +11,7 @@ const LandingPage = () => {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        navigate('/auth');
+        navigate('/user-signup');
     };
 
     return (

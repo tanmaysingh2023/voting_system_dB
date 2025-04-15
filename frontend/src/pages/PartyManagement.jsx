@@ -1,52 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AddPartyForm from './AddPartyForm';
 
 const PartyManagement = ({ election, onBack }) => {
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
   // Mock parties data - in a real app, this would come from an API
-  const [parties, setParties] = useState([
-    {
-      id: 1,
-      name: "Progressive Students Union",
-      agenda: "Focus on student welfare and academic excellence",
-      head: "Jane Smith",
-      members: ["Jane Smith", "Alex Johnson", "Priya Patel", "Michael Wong"]
-    },
-    {
-      id: 2,
-      name: "Campus Reform Party",
-      agenda: "Modernizing campus facilities and educational approaches",
-      head: "Robert Chen",
-      members: ["Robert Chen", "Sarah Williams", "David Martinez", "Emily Taylor"]
+  const [parties, setParties] = useState([]);
+
+  useEffect(() => {
+    getData();
+  }, [election._id]);
+  async function getData() {
+    try {
+      const res = await fetch(`${SERVER_URL}/parties/${election._id}`);
+      const result = await res.json();
+
+      if (result.success && result.data) {
+        setParties(result.data);
+      } else {
+        console.error('Failed to fetch parties');
+      }
+    } catch (error) {
+      console.error('Error fetching parties:', error);
     }
-  ]);
-  
-  const [showAddForm, setShowAddForm] = useState(false);
-  
-  const handleAddParty = (newParty) => {
-    // In a real app, this would make an API call
-    const partyWithId = {
-      ...newParty,
-      id: Math.max(...parties.map(p => p.id), 0) + 1
-    };
-    setParties([...parties, partyWithId]);
-    setShowAddForm(false);
-  };
-  
-  const handleRemoveParty = (id) => {
-    // In a real app, this would make an API call
-    if (window.confirm('Are you sure you want to remove this party?')) {
-      setParties(parties.filter(party => party.id !== id));
-    }
-  };
-  
-  if (showAddForm) {
-    return <AddPartyForm onAdd={handleAddParty} onCancel={() => setShowAddForm(false)} />;
   }
-  
+
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const handleAddParty = async (newParty) => {
+    try {
+      const res = await fetch(`${SERVER_URL}/parties`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newParty)
+      });
+
+      const result = await res.json();
+
+      if (result.success && result.data) {
+        // Add the party returned by the backend
+        setParties([...parties, result.data]);
+        setShowAddForm(false);
+      } else {
+        console.error('Failed to add party');
+      }
+    } catch (error) {
+      console.error('Error adding party:', error);
+    }
+  };
+
+
+  const handleRemoveParty = async (id) => {
+    if (window.confirm('Are you sure you want to remove this party?')) {
+      try {
+        const res = await fetch(`${SERVER_URL}/parties/${id}`, {
+          method: 'DELETE',
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          setParties(parties.filter(party => party._id !== id));
+        } else {
+          console.error('Failed to delete party');
+        }
+      } catch (error) {
+        console.error('Error deleting party:', error);
+      }
+    }
+  };
+
+  if (showAddForm) {
+    return <AddPartyForm onAdd={handleAddParty} onCancel={() => setShowAddForm(false)} electionID={election._id} />;
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center mb-6">
-        <button 
+        <button
           onClick={onBack}
           className="mr-4 text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors duration-200 hover:cursor-pointer"
         >
@@ -55,7 +87,7 @@ const PartyManagement = ({ election, onBack }) => {
           </svg>
         </button>
         <h2 className="text-2xl font-bold text-white flex-1">Parties in {election.name}</h2>
-        <button 
+        <button
           onClick={() => setShowAddForm(true)}
           className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md flex items-center gap-2 transition-all duration-200 hover:cursor-pointer"
         >
@@ -65,17 +97,17 @@ const PartyManagement = ({ election, onBack }) => {
           Add Party
         </button>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {parties.map((party) => (
-          <div 
-            key={party.id} 
+          <div
+            key={party._id}
             className="bg-gray-800 rounded-lg p-4 hover:bg-gray-750 transition-all duration-200"
           >
             <div className="flex justify-between">
               <h3 className="text-white text-lg font-medium">{party.name}</h3>
-              <button 
-                onClick={() => handleRemoveParty(party.id)}
+              <button
+                onClick={() => handleRemoveParty(party._id)}
                 className="text-red-400 hover:text-red-300 transition-colors duration-200 hover:cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -83,14 +115,14 @@ const PartyManagement = ({ election, onBack }) => {
                 </svg>
               </button>
             </div>
-            
+
             <p className="text-gray-400 mt-2">{party.agenda}</p>
-            
+
             <div className="mt-4">
               <p className="text-sm text-blue-400 font-medium">Party Head</p>
-              <p className="text-white">{party.head}</p>
+              <p className="text-white">{party.headname}</p>
             </div>
-            
+
             <div className="mt-3">
               <p className="text-sm text-blue-400 font-medium">Members</p>
               <ul className="list-disc list-inside text-white">
@@ -102,7 +134,7 @@ const PartyManagement = ({ election, onBack }) => {
           </div>
         ))}
       </div>
-      
+
       {parties.length === 0 && (
         <div className="bg-gray-800 rounded-lg p-6 text-center">
           <p className="text-gray-400">No parties have been added to this election yet.</p>
